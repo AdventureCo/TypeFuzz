@@ -1,0 +1,8 @@
+## GreetUser module
+Sends a greeting to the user on join. 
+
+Sends an in-depth greeting to a `welcome channel` and a quick greeting in the servers general / lounge channel
+
+### Environment variables
+- `CHANNEL_WELCOME` welcome channel ID
+- `CHANNEL_LOUNGE` general / lounge channel id
