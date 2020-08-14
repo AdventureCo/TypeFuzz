@@ -1,0 +1,59 @@
+{
+  "name": "fuzzbot",
+  "version": "1.0.0",
+  "description": "The fuzziest discord bot this side of the web!",
+  "main": "none",
+  "dependencies": {
+    "cron": "^1.8.2",
+    "discord.js": "^11.6.4",
+    "mongodb": "^3.3.3",
+    "nanoid": "^3.1.12",
+    "pubsub-js": "^1.8.0",
+    "vader-sentiment": "^1.1.3",
+    "winston": "^3.3.3",
+    "winston-mongodb": "^5.0.1"
+  },
+  "devDependencies": {
+    "@types/cron": "^1.7.2",
+    "@types/mongodb": "^3.5.25",
+    "@types/node": "^12.12.54",
+    "@types/pubsub-js": "^1.8.0",
+    "@typescript-eslint/eslint-plugin": "^2.34.0",
+    "@typescript-eslint/parser": "^3.8.0",
+    "concurrently": "^5.3.0",
+    "eslint": "^7.6.0",
+    "eslint-config-standard-with-typescript": "^14.0.0",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "jsdoc": "^3.6.5",
+    "nodemon": "^2.0.4",
+    "standardx": "^5.0.0",
+    "ts-loader": "^7.0.5",
+    "ts-node": "^8.10.2",
+    "ts-node-dev": "^1.0.0-pre.56",
+    "tsconfig-paths": "^3.8.0",
+    "typescript": "^3.9.7",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12",
+    "webpack-node-externals": "^1.7.2"
+  },
+  "scripts": {
+    "devel": "concurrently \"webpack --watch\" \"nodemon dist/bundle.js\"",
+    "lint": "eslint . --ext .js,.ts ; exit 0",
+    "prod": "webpack && node ./dist/bundle.js"
+  },
+  "eslintConfig": {
+    "rules": {
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": "error"
+    }
+  },
+  "standardx": {
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+      "@typescript-eslint/eslint-plugin"
+    ]
+  }
+}

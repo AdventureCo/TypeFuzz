@@ -1,0 +1,13 @@
+deploy:
+  only:
+    - master
+  script:
+    - mkdir dist
+    - npm i
+    - npm run lint
+    - webpack
+    - scp dist/bundle.js $USER@$SERVER:/home/runner/bots/fuzzbot
+    - scp package.json $USER@$SERVER:/home/runner/bots/fuzzbot
+    - ssh -t $USER@$SERVER "/home/runner/bots/fuzzbot/deploy.sh"
+  tags:
+    - build
