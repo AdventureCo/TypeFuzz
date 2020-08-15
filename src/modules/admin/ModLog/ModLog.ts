@@ -177,8 +177,9 @@ export class ModLog implements ModuleInterface {
     PubSub.subscribe('event_messageUpdate', function (_event: String, data: { oldMessage: Discord.Message, newMessage: Discord.Message }) {
       const old = data.oldMessage
       const updated = data.newMessage
+      const channel = data.oldMessage.channel
 
-      if (data.newMessage.content !== data.oldMessage.content) {
+      if ((channel instanceof Discord.TextChannel && !channel.nsfw) && data.newMessage.content !== data.oldMessage.content) {
         const embed = new RichEmbed()
           .setColor('PURPLE')
           .setAuthor(`${old.author.username}#${old.author.discriminator} (${old.author.id})`, old.author.displayAvatarURL)
@@ -202,30 +203,35 @@ export class ModLog implements ModuleInterface {
 
     PubSub.subscribe('event_messageDelete', function (_event: String, data: Discord.Message) {
       const msg = data
-      msg.guild.fetchAuditLogs({ type: 'MESSAGE_DELETE' }).then(audit => {
-        const entry: any = audit.entries.first()
-        let user: any
+      const channel = msg.channel
 
-        // from https://anidiots.guide/coding-guides/using-audit-logs
-        if (entry !== undefined && entry.extra.channel.id === msg.channel.id && (entry.target.id === msg.author.id) && (entry.createdTimestamp > (Date.now() - 5000)) && (entry.extra.count >= 1)) {
-          user = entry.executor
-        } else {
-          user = msg.author
-        }
+      if (channel instanceof Discord.TextChannel && !channel.nsfw) {
+        msg.guild.fetchAuditLogs({ type: 'MESSAGE_DELETE' }).then(audit => {
+          const entry: any = audit.entries.first()
+          let user: any
 
-        const embed = new RichEmbed()
-          .setTitle('Message Deleted')
-          .setAuthor(`${msg.author.username}#${msg.author.discriminator} (${msg.author.id})`, msg.author.displayAvatarURL)
-          .setColor('PURPLE')
-          .setDescription(`Message By ${msg.author} deleted in ${msg.channel}`)
-          .addField('Message Content', msg.content)
-          .addField('Deleted By', user)
-        logChannel.send(embed).catch(e => {
-          logger.log('error', e.message, ...[e])
+          // from https://anidiots.guide/coding-guides/using-audit-logs
+          if (entry !== undefined && entry.extra.channel.id === msg.channel.id && (entry.target.id === msg.author.id) && (entry.createdTimestamp > (Date.now() - 5000)) && (entry.extra.count >= 1)) {
+            user = entry.executor
+          } else {
+            user = msg.author
+          }
+
+          const embed = new RichEmbed()
+            .setTitle('Message Deleted')
+            .setAuthor(`${msg.author.username}#${msg.author.discriminator} (${msg.author.id})`, msg.author.displayAvatarURL)
+            .setColor('PURPLE')
+            .setDescription(`Message By ${msg.author} deleted in ${msg.channel}`)
+            .addField('Message Content', msg.content)
+            .addField('Deleted By', user)
+
+          logChannel.send(embed).catch(e => {
+            logger.log('error', e.message, ...[e])
+          })
+        }).catch(e => {
+          logger.log('error', e.message)
         })
-      }).catch(e => {
-        logger.log('error', e.message)
-      })
+      }
     })
   }
 
