@@ -26,5 +26,6 @@ export MUTE_BEFORE='3'
 
 # Other
 export BOT_ACTIVITY=''
+export HOUR_THRESHOLD=36
 
 npm run devel

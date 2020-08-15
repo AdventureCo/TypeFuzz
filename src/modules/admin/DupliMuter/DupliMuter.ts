@@ -28,8 +28,10 @@ export class DupliMuter implements ModuleInterface {
       const scores: any[] = []
       const split = message.match(/.{1,10}/g)
       const hoursInGuild = self.getHoursBetweenDates(new Date(msg.member.joinedAt), new Date())
+      let hourThreshold = process.env.HOUR_THRESHOLD ?? 36
+      hourThreshold = Number(hourThreshold)
 
-      if (hoursInGuild < 36 && split != null && message.length > 24) {
+      if (hoursInGuild < hourThreshold && split != null && message.length > 24) {
         split.forEach((chunk, index) => {
           split.forEach((chunk2, index2) => {
             if (index !== index2) {
