@@ -83,6 +83,8 @@ export class DiscordServer {
    * The downside is that you must type each object
    */
   private eventListeners (): void {
+    this.client.on('message', (message) =>
+      PubSub.publish('event_message', message))
     this.client.on('channelCreate', (channel) =>
       PubSub.publish('event_channelCreate', channel))
     this.client.on('channelDelete', (channel) =>
