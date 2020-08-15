@@ -27,5 +27,7 @@ export MUTE_BEFORE='3'
 # Other
 export BOT_ACTIVITY=''
 export HOUR_THRESHOLD=36
+export SERVER_OPEN=8
+export SERVER_CLOSE=22
 
 npm run devel
