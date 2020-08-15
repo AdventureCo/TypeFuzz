@@ -26,9 +26,10 @@ export class DupliMuter implements ModuleInterface {
     PubSub.subscribe('event_message', function (_event: String, msg: Discord.Message) {
       const message = msg.content
       const scores: any[] = []
-      const split = message.match(/\b[\w']+(?:[^\w\n]+[\w']+){0,4}\b/g)
+      const split = message.match(/.{1,10}/g)
+      const hoursInGuild = self.getHoursBetweenDates(new Date(msg.member.joinedAt), new Date())
 
-      if (split != null) {
+      if (hoursInGuild < 36 && split != null && message.length > 24) {
         split.forEach((chunk, index) => {
           split.forEach((chunk2, index2) => {
             if (index !== index2) {
@@ -39,7 +40,6 @@ export class DupliMuter implements ModuleInterface {
         })
 
         const score = Number((self.average(scores) * 100).toFixed())
-        console.log(score)
         if (score > 51) {
           if (muteRole !== '' && muteRole !== undefined) {
             msg.member.addRole(muteRole).catch(e => {
@@ -61,5 +61,12 @@ export class DupliMuter implements ModuleInterface {
   private average (array: any[]): number {
     const total = array.reduce((acc: number, c: number) => acc + c, 0)
     return total / array.length
+  }
+
+  private getHoursBetweenDates (older: Date, newer: Date): number {
+    const difference = Math.abs(older.getTime() - newer.getTime())
+    const hourDifference = difference / 1000 / 3600
+
+    return hourDifference
   }
 }
