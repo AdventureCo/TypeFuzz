@@ -65,7 +65,6 @@ export class MuteUser implements ModuleInterface {
       const existing = data.oldMember.roles.find(role => role.name === 'Muted')
       const role = data.newMember.roles.find(role => role.name === 'Muted')
 
-      // is this a new mute? And to avoid double ping; is this a new join?
       if (existing === null && role !== null) {
         const muteMessage = `Howdy there ${data.oldMember.user}! Looks like you got muted for some reason! A member of staff should be here shortly help out! <@&740060446182080583>`
 
