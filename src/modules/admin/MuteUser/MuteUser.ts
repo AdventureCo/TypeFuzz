@@ -27,7 +27,6 @@ export class MuteUser implements ModuleInterface {
    * Mutes user if they're really new
    */
   private muteOnJoin (): void {
-    const muteChannel = this.channel
     const muteBeforeVar = Number(process.env.MUTE_BEFORE) ?? 3
     const guild = this.guild
     const self = this
@@ -37,7 +36,6 @@ export class MuteUser implements ModuleInterface {
       const userCreated = member.createdAt
       const muteBefore = new Date(userCreated.setDate(new Date().getDate() + muteBeforeVar))
       const muteRole = process.env.ROLE_MUTE ?? undefined
-      const muteMessage = `Howdy there ${user}! Looks like you got muted for some reason! A member of staff should be here shortly help out! <@&740060446182080583>`
       const guildMember = guild?.member(user)
       const nickname = guildMember != null ? guildMember.displayName : ''
 
@@ -49,7 +47,6 @@ export class MuteUser implements ModuleInterface {
         if (muteRole != null) {
           try {
             await user.addRole(muteRole)
-            await muteChannel.send(muteMessage)
           } catch (e) {
             logger.log('error', e.message, ...[e.data])
           }
@@ -63,15 +60,13 @@ export class MuteUser implements ModuleInterface {
    */
   private userMuted (): void {
     const muteChannel = this.channel
-    const self = this
 
     PubSub.subscribe('event_guildMemberUpdate', function (_event: String, data: { oldMember: Discord.GuildMember, newMember: Discord.GuildMember }) {
       const existing = data.oldMember.roles.find(role => role.name === 'Muted')
       const role = data.newMember.roles.find(role => role.name === 'Muted')
-      const diff = self.getMinutesBetweenDates(new Date(data.oldMember.joinedAt), new Date())
 
       // is this a new mute? And to avoid double ping; is this a new join?
-      if (existing === null && role !== null && diff > 5) {
+      if (existing === null && role !== null) {
         const muteMessage = `Howdy there ${data.oldMember.user}! Looks like you got muted for some reason! A member of staff should be here shortly help out! <@&740060446182080583>`
 
         muteChannel.send(muteMessage).catch(e => {
@@ -79,13 +74,6 @@ export class MuteUser implements ModuleInterface {
         })
       }
     })
-  }
-
-  private getMinutesBetweenDates (older: Date, newer: Date): number {
-    var difference = Math.abs(older.getTime() - newer.getTime())
-    var minuteDifference = difference / 1000 / 60
-
-    return minuteDifference
   }
 
   /**
