@@ -4,7 +4,6 @@ import { logger } from 'utility/logger'
 import PubSub from 'pubsub-js'
 import Discord from 'discord.js'
 import { insertModuleConfig } from './models/insertModuleConfig'
-import { stat } from 'fs'
 import { findModuleConfig } from './models/findModuleConfig'
 
 export class PanicMode implements ModuleInterface {
@@ -43,13 +42,14 @@ export class PanicMode implements ModuleInterface {
   private setModuleStatus (): void {
     PubSub.subscribe('msg_panicMode', async function (_event: String, data: any[]) {
       const message: Discord.Message = data[0]
-      const status = data[1]
+      const status = data[1][0] ?? ''
 
-      if (status != null || status !== undefined || status !== 'true' || status !== 'false') {
+      if ((status != null && status !== undefined) && (status === 'on' || status === 'off')) {
         try {
-          await insertModuleConfig(Boolean(status))
+          const config = status === 'on'
+          await insertModuleConfig(config)
 
-          message.reply(`Module has been set to: ${Boolean(status)}`).catch(e => {
+          message.reply(`module has been set to: ${status}`).catch(e => {
             logger.log('error', e.message, ...[e.data])
           })
         } catch (e) {
@@ -62,7 +62,9 @@ export class PanicMode implements ModuleInterface {
       } else {
         try {
           const status = await findModuleConfig('PanicMode')
-          message.reply(`Module is set to: ${status}`).catch(e => {
+          const config = status === true ? 'on' : 'off'
+
+          message.reply(`module is set to: ${config}`).catch(e => {
             logger.log('error', e.message, ...[e.data])
           })
         } catch (e) {
