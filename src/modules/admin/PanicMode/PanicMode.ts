@@ -8,9 +8,11 @@ import { findModuleConfig } from './models/findModuleConfig'
 
 export class PanicMode implements ModuleInterface {
   private readonly server: DiscordServer
+  private readonly guild: Discord.Guild | undefined
 
   private constructor () {
     this.server = DiscordServer.getInstance()
+    this.guild = this.server.getGuild()
   }
 
   public apply (): void {
@@ -40,9 +42,21 @@ export class PanicMode implements ModuleInterface {
   }
 
   private setModuleStatus (): void {
+    const guild = this.guild
+    const server = this.server
+
     PubSub.subscribe('msg_panicMode', async function (_event: String, data: any[]) {
       const message: Discord.Message = data[0]
       const status = data[1][0] ?? ''
+      const userRoles = guild?.members.get(message.author.id)?.roles
+
+      if (userRoles == null || userRoles === undefined || !server.isUserStaff(userRoles)) {
+        message.reply('looks like you\'re missing staff perms!').catch(e => {
+          logger.log('error', e.message)
+        })
+
+        return
+      }
 
       if ((status != null && status !== undefined) && (status === 'on' || status === 'off')) {
         try {
