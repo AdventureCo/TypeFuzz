@@ -20,7 +20,7 @@ export class PanicMode implements ModuleInterface {
   }
 
   /**
-   * Checks server open status on new member join
+   * Checks module status on new member join
    */
   private checkStatusOnJoin (): void {
     const muteRole = process.env.ROLE_MUTE ?? undefined
