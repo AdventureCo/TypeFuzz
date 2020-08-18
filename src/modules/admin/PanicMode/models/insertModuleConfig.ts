@@ -2,10 +2,9 @@ import { MongoHelper } from 'MongoHelper'
 import { Db } from 'mongodb'
 
 /**
- * Insert message into Database
+ * Insert config into database
  *
- * @param {String} roleId the roleID
- * @param {String} messageId the messageId
+ * @param {Boolean} status the configs status
  */
 export async function insertModuleConfig (status: boolean): Promise<any> {
   const mongo: Db = MongoHelper.getDatabase()
