@@ -66,7 +66,7 @@ export class MuteUser implements ModuleInterface {
       const role = data.newMember.roles.find(role => role.name === 'Muted')
 
       if (existing === null && role !== null) {
-        const muteMessage = `Howdy there ${data.oldMember.user}! Looks like you got muted for some reason! A member of staff should be here shortly help out! <@&740060446182080583>`
+        const muteMessage = `You're muted right now ${data.oldMember.user}, but a member of staff should be here shortly help out! <@&740060446182080583>`
 
         muteChannel.send(muteMessage).catch(e => {
           logger.log('error', e.message)
