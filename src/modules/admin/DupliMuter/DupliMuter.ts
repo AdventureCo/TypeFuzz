@@ -5,12 +5,16 @@ import Discord from 'discord.js'
 import * as difflib from 'difflib'
 import { fetchNewUserMessages } from './models/fetchNewUserMessages'
 import { insertNewUserMessage } from './models/insertNewUserMessage'
+import { CronJob } from 'cron'
+import { fetchAllNewUserMessages } from './models/fetchAllNewUserMessages'
+import { deleteNewUserMessages } from './models/deleteNewUserMessages'
 
 export class DupliMuter implements ModuleInterface {
   private constructor () {}
 
   public apply (): void {
     this.messageEvent()
+    this.removeRecordCron()
   }
 
   /**
@@ -23,7 +27,8 @@ export class DupliMuter implements ModuleInterface {
       const message = msg.content
       const split = message.match(/.{1,10}/g)
       const userId = msg.author.id
-      const hoursInGuild = self.getHoursBetweenDates(new Date(msg.member.joinedAt), new Date())
+      const joinedAt = new Date(msg.member.joinedAt)
+      const hoursInGuild = self.getHoursBetweenDates(joinedAt, new Date())
       let hourThreshold = process.env.HOUR_THRESHOLD ?? 36
       hourThreshold = Number(hourThreshold)
 
@@ -43,7 +48,7 @@ export class DupliMuter implements ModuleInterface {
         logger.log('error', e.message, ...[e.data])
       }
 
-      insertNewUserMessage(userId, message).catch(e => {
+      insertNewUserMessage(userId, message, joinedAt).catch(e => {
         logger.log('error', e.message, ...[e.data])
       })
     })
@@ -79,6 +84,30 @@ export class DupliMuter implements ModuleInterface {
         logger.log('info', `Wanted to mute ${msg.author.username}#${msg.author.discriminator}(${msg.author.id}) but missing mute role!`)
       }
     }
+  }
+
+  /**
+   * Removes new user message history after threshold
+   */
+  private removeRecordCron (): void {
+    const self = this
+    const cron = new CronJob('0 0 0 */1 * *', function () {
+      fetchAllNewUserMessages().then(messageObjs => {
+        messageObjs.forEach((obj: { join: Date, _id: string }) => {
+          const hourThreshold = process.env.HOUR_THRESHOLD ?? 36
+          const hourDiff = self.getHoursBetweenDates(new Date(obj.join), new Date())
+          if (hourDiff >= hourThreshold) {
+            deleteNewUserMessages(obj._id).catch(e => {
+              logger.log('error', e.message, ...[e.data])
+            })
+          }
+        })
+      }).catch(e => {
+        logger.log('error', e.message, ...[e.data])
+      })
+    })
+
+    cron.start()
   }
 
   /**
