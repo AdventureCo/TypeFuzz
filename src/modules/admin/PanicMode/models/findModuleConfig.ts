@@ -2,9 +2,9 @@ import { MongoHelper } from 'MongoHelper'
 import { Db } from 'mongodb'
 
 /**
- * Finds role via message ID
+ * Finds module config via config ID
  *
- * @param messageId message id
+ * @param config config name
  */
 export async function findModuleConfig (config: string): Promise<any> {
   const mongo: Db = MongoHelper.getDatabase()

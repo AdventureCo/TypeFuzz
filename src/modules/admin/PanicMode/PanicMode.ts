@@ -41,6 +41,9 @@ export class PanicMode implements ModuleInterface {
     })
   }
 
+  /**
+   * Sets module status
+   */
   private setModuleStatus (): void {
     const guild = this.guild
     const server = this.server
@@ -58,6 +61,7 @@ export class PanicMode implements ModuleInterface {
         return
       }
 
+      // accepted message sent
       if ((status != null && status !== undefined) && (status === 'on' || status === 'off')) {
         try {
           const config = status === 'on'
@@ -74,6 +78,7 @@ export class PanicMode implements ModuleInterface {
           logger.log('error', e, message, ...[e.data])
         }
       } else {
+        // not accepted message, list status
         try {
           const status = await findModuleConfig('PanicMode')
           const config = status === true ? 'on' : 'off'
