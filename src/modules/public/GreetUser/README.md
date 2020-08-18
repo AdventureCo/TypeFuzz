@@ -6,3 +6,4 @@ Sends an in-depth greeting to a `welcome channel` and a quick greeting in the se
 ### Environment variables
 - `CHANNEL_WELCOME` welcome channel ID
 - `CHANNEL_LOUNGE` general / lounge channel id
+- `ROLE_MUTE` the mute role ( used to prevent greeting muted users )
