@@ -7,3 +7,4 @@ Uses server time.
 - `ROLE_MUTE` mute role ID
 - `SERVER_OPEN` the hour to open the server in 24 hour format, ex: `8` for 8am
 - `SERVER_CLOSE` the hour to close the server in 24 hour format, ex `22` for 10PM
+- `CHANNEL_MUTE` the mute room to send a closed server message
