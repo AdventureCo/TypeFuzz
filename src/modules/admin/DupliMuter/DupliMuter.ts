@@ -1,58 +1,113 @@
 import { ModuleInterface } from 'modules'
-import { DiscordServer } from 'DiscordServer'
 import { logger } from 'utility/logger'
 import PubSub from 'pubsub-js'
 import Discord from 'discord.js'
 import * as difflib from 'difflib'
+import { fetchNewUserMessages } from './models/fetchNewUserMessages'
+import { insertNewUserMessage } from './models/insertNewUserMessage'
+import { CronJob } from 'cron'
+import { fetchAllNewUserMessages } from './models/fetchAllNewUserMessages'
+import { deleteNewUserMessages } from './models/deleteNewUserMessages'
 
 export class DupliMuter implements ModuleInterface {
-  private readonly server: DiscordServer
-
-  private constructor () {
-    this.server = DiscordServer.getInstance()
-  }
+  private constructor () {}
 
   public apply (): void {
-    this.checkMessage()
+    this.messageEvent()
+    this.removeRecordCron()
   }
 
   /**
-   * Checks message for duplicated content
+   * The message event and data processor
    */
-  private checkMessage (): void {
-    const muteRole = process.env.ROLE_MUTE ?? undefined
+  private messageEvent (): void {
     const self = this
 
-    PubSub.subscribe('event_message', function (_event: String, msg: Discord.Message) {
+    PubSub.subscribe('event_message', async function (_event: String, msg: Discord.Message) {
       const message = msg.content
-      const scores: any[] = []
       const split = message.match(/.{1,10}/g)
-      const hoursInGuild = self.getHoursBetweenDates(new Date(msg.member.joinedAt), new Date())
+      const userId = msg.author.id
+      const joinedAt = new Date(msg.member.joinedAt)
+      const hoursInGuild = self.getHoursBetweenDates(joinedAt, new Date())
       let hourThreshold = process.env.HOUR_THRESHOLD ?? 36
       hourThreshold = Number(hourThreshold)
 
       if (hoursInGuild < hourThreshold && split != null && message.length > 24) {
-        split.forEach((chunk, index) => {
-          split.forEach((chunk2, index2) => {
-            if (index !== index2) {
-              const s = new difflib.SequenceMatcher(null, chunk, chunk2)
-              scores.push(s.ratio())
-            }
-          })
-        })
+        self.checkMessage(split, msg)
+      }
 
-        const score = Number((self.average(scores) * 100).toFixed())
-        if (score > 51) {
-          if (muteRole !== '' && muteRole !== undefined) {
-            msg.member.addRole(muteRole).catch(e => {
+      try {
+        const pastMessages = await fetchNewUserMessages(userId)
+        pastMessages.push(message)
+
+        // we want a baseline of X messages to run our checks against
+        if (hoursInGuild < hourThreshold && pastMessages.length > 2) {
+          self.checkMessage(pastMessages, msg)
+        }
+      } catch (e) {
+        logger.log('error', e.message, ...[e.data])
+      }
+
+      insertNewUserMessage(userId, message, joinedAt).catch(e => {
+        logger.log('error', e.message, ...[e.data])
+      })
+    })
+  }
+
+  /**
+   * Checks message(s) for duplication
+   *
+   * @param array array of messages to check
+   * @param msg discord message object
+   */
+  private checkMessage (array: any[], msg: Discord.Message): void {
+    const muteRole = process.env.ROLE_MUTE ?? undefined
+    const scores: any[] = []
+
+    array.forEach((chunk: string, index: number) => {
+      array.forEach((chunk2: string, index2: number) => {
+        if (index !== index2) {
+          const s = new difflib.SequenceMatcher(null, chunk, chunk2)
+          scores.push(s.ratio())
+        }
+      })
+    })
+
+    const score = Number((this.average(scores) * 100).toFixed())
+
+    if (score >= 51) {
+      if (muteRole !== '' && muteRole !== undefined) {
+        msg.member.addRole(muteRole).catch(e => {
+          logger.log('error', e.message, ...[e.data])
+        })
+      } else {
+        logger.log('info', `Wanted to mute ${msg.author.username}#${msg.author.discriminator}(${msg.author.id}) but missing mute role!`)
+      }
+    }
+  }
+
+  /**
+   * Removes new user message history after threshold
+   */
+  private removeRecordCron (): void {
+    const self = this
+    const cron = new CronJob('0 0 0 */1 * *', function () {
+      fetchAllNewUserMessages().then(messageObjs => {
+        messageObjs.forEach((obj: { join: Date, _id: string }) => {
+          const hourThreshold = process.env.HOUR_THRESHOLD ?? 36
+          const hourDiff = self.getHoursBetweenDates(new Date(obj.join), new Date())
+          if (hourDiff >= hourThreshold) {
+            deleteNewUserMessages(obj._id).catch(e => {
               logger.log('error', e.message, ...[e.data])
             })
-          } else {
-            logger.log('info', `Wanted to mute ${msg.author.username}#${msg.author.discriminator}(${msg.author.id}) but missing mute role!`)
           }
-        }
-      }
+        })
+      }).catch(e => {
+        logger.log('error', e.message, ...[e.data])
+      })
     })
+
+    cron.start()
   }
 
   /**
