@@ -8,7 +8,7 @@ import { Db } from 'mongodb'
  */
 export async function insertNewUserMessage (userId: string, message: string): Promise<any> {
   const mongo: Db = MongoHelper.getDatabase()
-  const userObj = await mongo.collection('newUserMessages').update({ user: userId }, { $push: { messages: message } }, { upsert: true })
+  const userObj = await mongo.collection('newUserMessages').updateOne({ user: userId }, { $push: { messages: message } }, { upsert: true })
 
   return userObj
 }

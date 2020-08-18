@@ -14,7 +14,7 @@ export class DupliMuter implements ModuleInterface {
   }
 
   /**
-   * Checks message for duplicated content
+   * The message event and data processor
    */
   private messageEvent (): void {
     const self = this
@@ -49,6 +49,12 @@ export class DupliMuter implements ModuleInterface {
     })
   }
 
+  /**
+   * Checks message(s) for duplication
+   *
+   * @param array array of messages to check
+   * @param msg discord message object
+   */
   private checkMessage (array: any[], msg: Discord.Message): void {
     const muteRole = process.env.ROLE_MUTE ?? undefined
     const scores: any[] = []
@@ -64,7 +70,7 @@ export class DupliMuter implements ModuleInterface {
 
     const score = Number((this.average(scores) * 100).toFixed())
 
-    if (score > 51) {
+    if (score >= 51) {
       if (muteRole !== '' && muteRole !== undefined) {
         msg.member.addRole(muteRole).catch(e => {
           logger.log('error', e.message, ...[e.data])
