@@ -4,6 +4,7 @@ import { logger } from 'utility/logger'
 import PubSub from 'pubsub-js'
 import Discord from 'discord.js'
 import vader from 'vader-sentiment'
+import { CronJob } from 'cron'
 
 const muteSymbols = ['卐', '卍', '✠']
 
@@ -21,6 +22,7 @@ export class MuteUser implements ModuleInterface {
   public apply (): void {
     this.muteOnJoin()
     this.userMuted()
+    this.wipeServerCron()
   }
 
   /**
@@ -83,5 +85,47 @@ export class MuteUser implements ModuleInterface {
   private isTextExcessivelyNegative (input: string): boolean {
     const intensity = vader.SentimentIntensityAnalyzer.polarity_scores(input)
     return intensity.compound < -0.3
+  }
+
+  /**
+   * CRON that deletes messages every X ( time )
+   */
+  private wipeServerCron (): void {
+    const wipeFreq = process.env.CHANNEL_MUTE_WIP_FREQ ?? 24
+    const self = this
+
+    const cron = new CronJob(`0 0 */${wipeFreq} * * *`, function () {
+      self.deleteMessages()
+    })
+
+    cron.start()
+  }
+
+  /**
+   * Deletes all messages in channel
+   *
+   * @param before message to use as lookup
+   */
+  private deleteMessages (before?: string): string|void {
+    const muteRoom = this.channel
+    const self = this
+
+    muteRoom.fetchMessages({ limit: 100, before: before }).then((messages: { map: (arg0: (message: Discord.Message) => void) => void, size: number }) => {
+      let count = 0
+
+      messages.map((message: Discord.Message) => {
+        message.delete().catch(e => {
+          logger.log('error', e.message, ...[e.data])
+        })
+
+        count++
+
+        if (count === messages.size) {
+          self.deleteMessages(message.id)
+        }
+      })
+    }).catch(e => {
+      logger.log('error', e.message, ...[e.data])
+    })
   }
 }
