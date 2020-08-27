@@ -227,14 +227,16 @@ export class DiscordServer {
    * @param roles list of user roles
    * @returns {boolean} result of staff check
    */
-  public isUserStaff (roles: Collection<any, any>): boolean {
+  public isUserStaff (roles: Collection<any, any>|undefined): boolean {
     let auth = false
 
-    roles.forEach((roleObj: Discord.Role) => {
-      if (this.staffRoles.includes(roleObj.id)) {
-        auth = true
-      }
-    })
+    if (roles !== undefined) {
+      roles.forEach((roleObj: Discord.Role) => {
+        if (this.staffRoles.includes(roleObj.id)) {
+          auth = true
+        }
+      })
+    }
 
     return auth
   }

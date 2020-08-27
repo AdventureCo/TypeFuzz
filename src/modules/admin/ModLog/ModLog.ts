@@ -214,7 +214,7 @@ export class ModLog implements ModuleInterface {
           if (entry !== undefined && entry.extra.channel.id === msg.channel.id && (entry.target.id === msg.author.id) && (entry.createdTimestamp > (Date.now() - 5000)) && (entry.extra.count >= 1)) {
             user = entry.executor
           } else {
-            user = msg.author
+            user = 'Unknown'
           }
 
           const embed = new RichEmbed()

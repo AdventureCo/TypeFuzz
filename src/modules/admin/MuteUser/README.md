@@ -9,3 +9,4 @@ If mute channel exists and is setup via environment variable, sends a message.
 ### Environment variables
 - `CHANNEL_MUTE` mute channel ID 
 - `ROLE_MUTE` mute role ID
+- `CHANNEL_MUTE_WIP_FREQ` how often to clear the mute room in hours, defaults to 24
