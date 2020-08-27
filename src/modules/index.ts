@@ -13,6 +13,7 @@ export * from 'modules/admin/PanicMode/PanicMode'
  */
 export * from 'modules/public/GreetUser/GreetUser'
 export * from 'modules/public/RoleAssigner/RoleAssigner'
+export * from 'modules/public/NewUser/NewUser'
 
 /**
  * Module interface
