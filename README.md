@@ -35,6 +35,9 @@ Each module should aim to only do one thing, and thus should only contain three 
 
 Because modules are loosely coupled, you should *not* directly call other modules and instead use our in app message passing. As such, all of your class methods should be ***private*** and *not* public.
 
+## Intro video
+[Here is a quick, high-level overview of the bot and how it works](https://youtu.be/QbTXkXg0DhU)
+
 ## Documentation
 ### Helper Functions
 The core singleton `DiscordServer` has a few helper functions to aid you while developing your module. These helper functions can be viewed in the file, but here are the most common ones you'll probably use:
