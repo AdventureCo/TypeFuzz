@@ -23,13 +23,13 @@ export class MetaLog implements ModuleInterface {
   private listenAndLog (): void {
     const channel = this.channel
 
-    PubSub.subscribe('logMeta', function (_event: String, data: { module: string, message: string, extra?: string }) {
+    PubSub.subscribe('module_metaLog', function (_event: String, data: { module: string, message: string, extra?: string }) {
       if (!('module' in data) || !('message' in data)) {
         return
       }
 
       const embed = new RichEmbed()
-        .setTitle(data.module)
+        .setTitle(`Module: ${data.module}`)
         .setColor('GREEN')
         .setDescription(data.message)
 
