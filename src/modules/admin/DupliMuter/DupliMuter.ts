@@ -83,6 +83,12 @@ export class DupliMuter implements ModuleInterface {
       } else {
         logger.log('info', `Wanted to mute ${msg.author.username}#${msg.author.discriminator}(${msg.author.id}) but missing mute role!`)
       }
+
+      PubSub.publish('module_metaLog', {
+        module: 'DupliMuter',
+        message: `User ${msg.author} has been muted because their message(s) are too duplicated`,
+        extra: `Users current message and or recent messages are estimated ${score}% duplicated`
+      })
     }
   }
 

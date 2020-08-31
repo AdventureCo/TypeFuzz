@@ -7,6 +7,7 @@ export * from 'modules/admin/SetBotActivity/SetBotActivity'
 export * from 'modules/admin/DupliMuter/DupliMuter'
 export * from 'modules/admin/ServerCloser/ServerCloser'
 export * from 'modules/admin/PanicMode/PanicMode'
+export * from 'modules/admin/MetaLog/MetaLog'
 
 /**
  * Public Modules

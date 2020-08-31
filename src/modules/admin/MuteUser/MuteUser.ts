@@ -22,7 +22,7 @@ export class MuteUser implements ModuleInterface {
   public apply (): void {
     this.muteOnJoin()
     this.userMuted()
-    this.wipeServerCron()
+    this.wipeChannelCron()
   }
 
   /**
@@ -40,11 +40,15 @@ export class MuteUser implements ModuleInterface {
       const muteRole = process.env.ROLE_MUTE ?? undefined
       const guildMember = guild?.member(user)
       const nickname = guildMember != null ? guildMember.displayName : ''
+      const usernameNegative = self.isTextExcessivelyNegative(member.username)
+      const nicknameNegative = self.isTextExcessivelyNegative(nickname)
+      const usernameHasMuteSymbol = muteSymbols.some(sym => member.username.includes(sym))
+      const nicknameHasMuteSymbol = muteSymbols.some(sym => nickname.includes(sym))
 
       if (
         (new Date() < muteBefore && muteRole !== undefined) ||
-        (self.isTextExcessivelyNegative(member.username) || self.isTextExcessivelyNegative(nickname)) ||
-        (muteSymbols.some(sym => member.username.includes(sym)) || muteSymbols.some(sym => nickname.includes(sym)))
+        (usernameNegative || nicknameNegative) ||
+        (usernameHasMuteSymbol || nicknameHasMuteSymbol)
       ) {
         if (muteRole != null) {
           try {
@@ -53,6 +57,30 @@ export class MuteUser implements ModuleInterface {
             logger.log('error', e.message, ...[e.data])
           }
         }
+      }
+
+      if (new Date() < muteBefore && muteRole !== undefined) {
+        PubSub.publish('module_metaLog', {
+          module: 'MuteUser',
+          message: `User ${user} has been muted because their account is younger then our set threshold of ${muteBeforeVar} days.`,
+          extra: `User account created ${userCreated}`
+        })
+      }
+
+      if (usernameNegative || nicknameNegative) {
+        PubSub.publish('module_metaLog', {
+          module: 'MuteUser',
+          message: `User ${user} has been muted because their account name or nickname is too negative`,
+          extra: `Is username too negative: ${usernameNegative}\nIs nickname too negative: ${nicknameNegative}`
+        })
+      }
+
+      if (usernameHasMuteSymbol || nicknameHasMuteSymbol) {
+        PubSub.publish('module_metaLog', {
+          module: 'MuteUser',
+          message: `User ${user} has been muted because their account name or nickname has a symbol known to be used for hate`,
+          extra: `Username contains: ${usernameHasMuteSymbol}\nNickname contains: ${usernameHasMuteSymbol}`
+        })
       }
     })
   }
@@ -90,7 +118,7 @@ export class MuteUser implements ModuleInterface {
   /**
    * CRON that deletes messages every X ( time )
    */
-  private wipeServerCron (): void {
+  private wipeChannelCron (): void {
     const wipeFreq = process.env.CHANNEL_MUTE_WIP_FREQ ?? 24
     const self = this
 

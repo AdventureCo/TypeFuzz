@@ -12,6 +12,7 @@ export CHANNEL_LOG=''
 export CHANNEL_ROLES=''
 export CHANNEL_LOUNGE=''
 export CHANNEL_MUTE=''
+export CHANNEL_METALOG=''
 
 # Roles
 export ROLE_BOT=''
