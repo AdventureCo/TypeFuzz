@@ -24,33 +24,40 @@ export class DupliMuter implements ModuleInterface {
     const self = this
 
     PubSub.subscribe('event_message', async function (_event: String, msg: Discord.Message) {
-      const message = msg.content
-      const split = message.match(/.{1,10}/g)
-      const userId = msg.author.id
-      const joinedAt = new Date(msg.member.joinedAt)
-      const hoursInGuild = self.getHoursBetweenDates(joinedAt, new Date())
-      let hourThreshold = process.env.HOUR_THRESHOLD ?? 36
-      hourThreshold = Number(hourThreshold)
-
-      if (hoursInGuild < hourThreshold && split != null && message.length > 24) {
-        self.checkMessage(split, msg)
-      }
-
       try {
-        const pastMessages = await fetchNewUserMessages(userId)
-        pastMessages.push(message)
+        const message = msg.content
+        const split = message.match(/.{1,10}/g)
+        const userId = msg.author.id
 
-        // we want a baseline of X messages to run our checks against
-        if (hoursInGuild < hourThreshold && pastMessages.length > 2) {
-          self.checkMessage(pastMessages, msg)
+        if ('member' in msg && 'joinedAt' in msg.member) {
+          const joinedAt = new Date(msg.member.joinedAt)
+          const hoursInGuild = self.getHoursBetweenDates(joinedAt, new Date())
+          let hourThreshold = process.env.HOUR_THRESHOLD ?? 36
+          hourThreshold = Number(hourThreshold)
+
+          if (hoursInGuild < hourThreshold && split != null && message.length > 24) {
+            self.checkMessage(split, msg)
+          }
+
+          try {
+            const pastMessages = await fetchNewUserMessages(userId)
+            pastMessages.push(message)
+
+            // we want a baseline of X messages to run our checks against
+            if (hoursInGuild < hourThreshold && pastMessages.length > 2) {
+              self.checkMessage(pastMessages, msg)
+            }
+          } catch (e) {
+            logger.log('error', e.message, ...[e.data])
+          }
+
+          insertNewUserMessage(userId, message, joinedAt).catch(e => {
+            logger.log('error', e.message, ...[e.data])
+          })
         }
       } catch (e) {
-        logger.log('error', e.message, ...[e.data])
+        logger.log('error', e.message, ...[e])
       }
-
-      insertNewUserMessage(userId, message, joinedAt).catch(e => {
-        logger.log('error', e.message, ...[e.data])
-      })
     })
   }
 
