@@ -7,7 +7,10 @@ deploy:
     - npm run lint
     - webpack
     - scp dist/bundle.js $USER@$SERVER:/home/runner/bots/fuzzbot
+    - scp dist/bundle.js $USER@$SERVER:/home/runner/bots/fdnbot
     - scp package.json $USER@$SERVER:/home/runner/bots/fuzzbot
+    - scp package.json $USER@$SERVER:/home/runner/bots/fdnbot
     - ssh -t $USER@$SERVER "/home/runner/bots/fuzzbot/deploy.sh"
+    - ssh -t $USER@$SERVER "/home/runner/bots/fdnbot/deploy.sh"
   tags:
     - build
