@@ -21,6 +21,11 @@ export ROLE_STAFF_MOD=''
 export ROLE_STAFF_ADMIN=''
 export ROLE_STAFF_SUPPORT=''
 
+# Messages
+export MUTE_MESSAGE="You're muted right now @user, but a member of staff should be here shortly help out!"
+export LOUNGE_MESSAGE="Welcome @user!"
+export GREET_MESSAGE="Welcome to the server, @user!"
+
 # Utils
 export GUILD=''
 export MUTE_BEFORE='3'

@@ -7,3 +7,5 @@ Sends an in-depth greeting to a `welcome channel` and a quick greeting in the se
 - `CHANNEL_WELCOME` welcome channel ID
 - `CHANNEL_LOUNGE` general / lounge channel id
 - `ROLE_MUTE` the mute role ( used to prevent greeting muted users )
+- `LOUNGE_MESSAGE` the message to send in the lounge channel ( use @user to ping user )
+- `GREET_MESSAGE` the message to send in the welcome channel ( use @user to ping user )

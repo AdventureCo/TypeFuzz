@@ -1,4 +1,4 @@
 node_modules/
 dist/
-start-devel.sh
+start-devel*.sh
 model/

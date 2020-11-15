@@ -94,9 +94,10 @@ export class MuteUser implements ModuleInterface {
     PubSub.subscribe('event_guildMemberUpdate', function (_event: String, data: { oldMember: Discord.GuildMember, newMember: Discord.GuildMember }) {
       const existing = data.oldMember.roles.find(role => role.name === 'Muted')
       const role = data.newMember.roles.find(role => role.name === 'Muted')
+      let muteMessage = process.env.MUTE_MESSAGE ?? 'You\'re muted right now @user, but a member of staff should be by shortly to help.'
 
       if (existing === null && role !== null) {
-        const muteMessage = `You're muted right now ${data.oldMember.user}, but a member of staff should be here shortly help out! <@&740060446182080583>`
+        muteMessage = muteMessage.replace('@user', `<@${data.oldMember.user.id}>`)
 
         muteChannel.send(muteMessage).catch(e => {
           logger.log('error', e.message)

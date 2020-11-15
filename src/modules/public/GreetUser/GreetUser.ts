@@ -16,10 +16,12 @@ export class GreetUser implements ModuleInterface {
     const loungeChannel = this.server.getChannel('CHANNEL_LOUNGE')
     const muteRole = process.env.ROLE_MUTE ?? undefined
     const wait = require('util').promisify(setTimeout)
+    let loungeMessage = process.env.LOUNGE_MESSAGE ?? 'Welcome to the server, @user!'
+    let greetMessage = process.env.GREET_MESSAGE ?? 'Welcome to the server, @user!'
 
     PubSub.subscribe('event_guildMemberAdd', async function (_event: String, user: Discord.GuildMember) {
-      const greetMessage = `Welcome to the server, ${user.user}! Please checkout our <#490979425358446603> and come say henlo in <#528076335818735636>! We have a role system setup in <#624045743870705673>, so feel free to grab all the ones you like uwu \nSee you around the server <:catHi:670697661535617046>`
-      const loungeMessage = `Welcome to FuzzSpot ${user.user} <:doggoHi:623972092387524624>`
+      greetMessage = greetMessage.replace('@user', `<@${user.user.id}>`)
+      loungeMessage = loungeMessage.replace('@user', `<@${user.user.id}>`)
 
       wait(5000)
 
