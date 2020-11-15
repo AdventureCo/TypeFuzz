@@ -22,12 +22,22 @@ export class DupliMuter implements ModuleInterface {
    */
   private messageEvent (): void {
     const self = this
+    const overrideRole = process.env.ROLE_DUPLIMUTER_OVERRIDE ?? undefined
 
     PubSub.subscribe('event_message', async function (_event: String, msg: Discord.Message) {
       try {
         const message = msg.content
         const split = message.match(/.{1,10}/g)
         const userId = msg.author.id
+        let override = false
+
+        if (overrideRole !== undefined) {
+          const hasOverride = msg.member?.roles.find(userRoles => userRoles.id === overrideRole)
+
+          if (hasOverride !== undefined) {
+            override = true
+          }
+        }
 
         if ('member' in msg && 'joinedAt' in msg.member) {
           const joinedAt = new Date(msg.member.joinedAt)
@@ -35,7 +45,7 @@ export class DupliMuter implements ModuleInterface {
           let hourThreshold = process.env.HOUR_THRESHOLD ?? 36
           hourThreshold = Number(hourThreshold)
 
-          if (hoursInGuild < hourThreshold && split != null && message.length > 24) {
+          if (hoursInGuild < hourThreshold && split != null && message.length > 24 && !override) {
             self.checkMessage(split, msg)
           }
 
@@ -44,7 +54,7 @@ export class DupliMuter implements ModuleInterface {
             pastMessages.push(message)
 
             // we want a baseline of X messages to run our checks against
-            if (hoursInGuild < hourThreshold && pastMessages.length > 2) {
+            if (hoursInGuild < hourThreshold && pastMessages.length > 2 && !override) {
               self.checkMessage(pastMessages, msg)
             }
           } catch (e) {
