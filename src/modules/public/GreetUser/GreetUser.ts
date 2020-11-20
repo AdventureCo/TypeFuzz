@@ -16,12 +16,12 @@ export class GreetUser implements ModuleInterface {
     const loungeChannel = this.server.getChannel('CHANNEL_LOUNGE')
     const muteRole = process.env.ROLE_MUTE ?? undefined
     const wait = require('util').promisify(setTimeout)
-    let loungeMessage = process.env.LOUNGE_MESSAGE ?? 'Welcome to the server, @user!'
-    let greetMessage = process.env.GREET_MESSAGE ?? 'Welcome to the server, @user!'
+    const loungeMessageRaw = process.env.LOUNGE_MESSAGE ?? 'Welcome to the server, @user!'
+    const greetMessageRaw = process.env.GREET_MESSAGE ?? 'Welcome to the server, @user!'
 
     PubSub.subscribe('event_guildMemberAdd', async function (_event: String, user: Discord.GuildMember) {
-      greetMessage = greetMessage.replace('@user', `<@${user.user.id}>`)
-      loungeMessage = loungeMessage.replace('@user', `<@${user.user.id}>`)
+      const greetMessage = greetMessageRaw.replace('@user', `<@${user.user.id}>`)
+      const loungeMessage = loungeMessageRaw.replace('@user', `<@${user.user.id}>`)
 
       wait(5000)
 
