@@ -37,6 +37,10 @@ export class MetaLog implements ModuleInterface {
         embed.addField('Additional', data.extra)
       }
 
+      PubSub.publish('module_publicLog', {
+        message: embed
+      })
+
       channel.send(embed).catch(e => {
         logger.log('error', e.message, ...[e.data])
       })

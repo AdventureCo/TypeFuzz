@@ -23,25 +23,6 @@ export class PublicModLog implements ModuleInterface {
   private listenAndLog (): void {
     const channel = this.channel
 
-    PubSub.subscribe('module_metaLog', function (_event: String, data: { module: string, message: string, extra?: string }) {
-      if (!('module' in data) || !('message' in data)) {
-        return
-      }
-
-      const embed = new RichEmbed()
-        .setTitle(`Module: ${data.module}`)
-        .setColor('GREEN')
-        .setDescription(data.message)
-
-      if ('extra' in data) {
-        embed.addField('Additional', data.extra)
-      }
-
-      channel.send(embed).catch(e => {
-        logger.log('error', e.message, ...[e.data])
-      })
-    })
-
     PubSub.subscribe('module_publicLog', function (_event: String, data: { message: string }) {
       channel.send(data.message).catch(e => {
         logger.log('error', e.message, ...[e.data])
