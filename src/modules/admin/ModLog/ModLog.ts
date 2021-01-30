@@ -122,6 +122,10 @@ export class ModLog implements ModuleInterface {
           embed.setTitle('User Left').setDescription(`User ${user.user} has left`)
         }
 
+        PubSub.publish('module_publicLog', {
+          message: embed
+        })
+
         logChannel.send(embed).catch(e => {
           logger.log('error', e.message, ...[e.data])
         })
@@ -158,6 +162,10 @@ export class ModLog implements ModuleInterface {
             .setTitle('User Banned')
             .setThumbnail(user.user.displayAvatarURL)
             .setDescription(`User ${user.user} has been banned by ${log.executor}`)
+
+          PubSub.publish('module_publicLog', {
+            message: embed
+          })
 
           logChannel.send(embed).catch(e => {
             logger.log('error', e.message, ...[e])
