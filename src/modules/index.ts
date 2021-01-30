@@ -8,6 +8,7 @@ export * from 'modules/admin/DupliMuter/DupliMuter'
 export * from 'modules/admin/ServerCloser/ServerCloser'
 export * from 'modules/admin/PanicMode/PanicMode'
 export * from 'modules/admin/MetaLog/MetaLog'
+export * from 'modules/admin/PingChecker/PingChecker'
 
 /**
  * Public Modules
