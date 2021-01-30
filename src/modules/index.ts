@@ -15,6 +15,7 @@ export * from 'modules/admin/MetaLog/MetaLog'
 export * from 'modules/public/GreetUser/GreetUser'
 export * from 'modules/public/RoleAssigner/RoleAssigner'
 export * from 'modules/public/NewUser/NewUser'
+export * from 'modules/public/PublicModLog/PublicModLog'
 
 /**
  * Module interface
