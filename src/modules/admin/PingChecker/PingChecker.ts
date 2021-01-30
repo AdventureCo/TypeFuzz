@@ -6,11 +6,9 @@ import Discord from 'discord.js'
 
 export class PingChecker implements ModuleInterface {
   private readonly server: DiscordServer
-  private readonly muteChannel: Discord.TextChannel
 
   private constructor () {
     this.server = DiscordServer.getInstance()
-    this.muteChannel = this.server.getChannel('CHANNEL_MUTE')
   }
 
   public apply (): void {
