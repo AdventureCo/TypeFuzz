@@ -2,7 +2,7 @@ import { ModuleInterface } from 'modules'
 import { DiscordServer } from 'DiscordServer'
 import { logger } from 'utility/logger'
 import PubSub from 'pubsub-js'
-import Discord, { RichEmbed } from 'discord.js'
+import Discord from 'discord.js'
 
 export class PublicModLog implements ModuleInterface {
   private readonly server: DiscordServer
