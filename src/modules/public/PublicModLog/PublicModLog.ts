@@ -24,9 +24,13 @@ export class PublicModLog implements ModuleInterface {
     const channel = this.channel
 
     PubSub.subscribe('module_publicLog', function (_event: String, data: { message: string }) {
-      channel.send(data.message).catch(e => {
-        logger.log('error', e.message, ...[e.data])
-      })
+      try {
+        channel.send(data.message).catch(e => {
+          logger.log('error', e.message, ...[e.data])
+        })
+      } catch {
+        // ignore
+      }
     })
   }
 }
