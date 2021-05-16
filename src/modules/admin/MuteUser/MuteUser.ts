@@ -63,7 +63,7 @@ export class MuteUser implements ModuleInterface {
         PubSub.publish('module_metaLog', {
           module: 'MuteUser',
           message: `User ${user} has been muted because their account is younger then our set threshold of ${muteBeforeVar} days.`,
-          extra: `User account created ${userCreated}`
+          extra: `User account created ${member.createdAt}`
         })
       }
 

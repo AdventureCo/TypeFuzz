@@ -27,7 +27,7 @@ export class DupliMuter implements ModuleInterface {
     PubSub.subscribe('event_message', async function (_event: String, msg: Discord.Message) {
       try {
         const message = msg.content
-        const split = message.match(/.{1,10}/g)
+        const split = message.match(/.{1,25}/g)
         const userId = msg.author.id
         let override = false
 
@@ -45,8 +45,10 @@ export class DupliMuter implements ModuleInterface {
           let hourThreshold = process.env.HOUR_THRESHOLD ?? 36
           hourThreshold = Number(hourThreshold)
 
+          // check if message has duplicated text
           if (hoursInGuild < hourThreshold && split != null && message.length > 24 && !override) {
             self.checkMessage(split, msg)
+            self.checkMessage(message.split('\n'), msg)
           }
 
           try {
@@ -81,6 +83,10 @@ export class DupliMuter implements ModuleInterface {
     const muteRole = process.env.ROLE_MUTE ?? undefined
     const scores: any[] = []
 
+    /**
+     * Compares each "chunk" with all other chunks
+     * in the array
+     */
     array.forEach((chunk: string, index: number) => {
       array.forEach((chunk2: string, index2: number) => {
         if (index !== index2) {
@@ -143,6 +149,13 @@ export class DupliMuter implements ModuleInterface {
     return total / array.length
   }
 
+  /**
+   * Gets the hours between two dates
+   *
+   * @param older older date
+   * @param newer newer date
+   * @returns hours
+   */
   private getHoursBetweenDates (older: Date, newer: Date): number {
     const difference = Math.abs(older.getTime() - newer.getTime())
     const hourDifference = difference / 1000 / 3600
